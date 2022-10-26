@@ -1,27 +1,24 @@
-const express = require("express")
-const mongoose = require("mongoose")
-const router = require(__dirname+"/routes/route.js")
-const articles = require("./models/model")
-const bodyParser = require("body-parser")
-const methodOverride = require("method-override")
+const express = require('express')
+const mongoose = require('mongoose')
+const Article = require('./models/model.js')
+const router = require('./routes/route')
+const methodOverride = require('method-override')
 const app = express()
+const bodyParser = require("body-parser")
 
+mongoose.connect('mongodb://localhost/blog')
 
-app.set("view engine","ejs")
- 
-app.use(bodyParser.urlencoded({extended:true}))
-app.use("/articles",router)
-app.use(methodOverride("method"))
+app.set('view engine', 'ejs')
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(methodOverride('_method'))
 
-app.get("/", async (req,res) => {
-    const article = await articles.find()
-    console.log(article)
-    res.render("view",{articles:article})
+app.get('/', async (req, res) => {
+  const articles = await Article.find().sort({ createdAt: 'desc' })
+  res.render('view', { articles: articles })
 })
 
-mongoose.connect("mongodb://localhost:27017/blog")
+app.use('/articles',router)
 
-
-app.listen(3000,()=>{
+app.listen(3000,() => {
     console.log("server started")
 })
